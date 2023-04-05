@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive WebAssembly Fibonacci Example</title>
+  <script>
+    async function loadWebAssembly() {
+      const response = await fetch('fibonacci.wasm');
+      const buffer = await response.arrayBuffer();
+      const module = await WebAssembly.compile(buffer);
+      const instance = await WebAssembly.instantiate(module);
+
+      const { fibonacci } = instance.exports;
+
+      document.getElementById('calculateButton').addEventListener('click', () => {
+        const num = parseInt(document.getElementById('num').value, 10);
+        const result = fibonacci(num);
+
+        document.getElementById('result').textContent = `f(${num}) = f(${num - 1}) + f(${num - 2}) = ${result}`;
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadWebAssembly();
+    });
+  </script>
+</head>
+<body>
+  <h1>Interactive WebAssembly Fibonacci Example</h1>
+  <div>
+    <input type="number" id="num" placeholder="Enter a number">
+    <button id="calculateButton">Calculate Fibonacci</button>
+  </div>
+  <div>
+    <p id="result"></p>
+  </div>
+  <h2>C code:</h2>
+  <pre><code>
+#include &lt;emscripten/emscripten.h&gt;
+
+EMSCRIPTEN_KEEPALIVE
+int fibonacci(int n) {
+  if (n <= 1) {
+    return n;
+  }
+
+  return fibonacci(n - 1) + fibonacci(n - 2);
+}
+  </code></pre>
+</body>
+</html>
